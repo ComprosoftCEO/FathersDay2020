@@ -9,6 +9,9 @@ pub enum Item {
   Log,
   OldKey,
   Armor,
+  Pitchfork,
+  Shield,
+  Sword,
 }
 
 impl Item {
@@ -26,6 +29,9 @@ impl ToString for Item {
       Item::Log => "log".into(),
       Item::OldKey => "oldkey".into(),
       Item::Armor => "armor".into(),
+      Item::Pitchfork => "pitchfork".into(),
+      Item::Shield => "shield".into(),
+      Item::Sword => "sword".into(),
     }
   }
 }

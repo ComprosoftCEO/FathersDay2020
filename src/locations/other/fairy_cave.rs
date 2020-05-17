@@ -25,8 +25,8 @@ pub fn fairy_cave() -> Box<dyn Location> {
 }
 
 fn talk_fairy(state: &mut State) -> GameAction {
-  if !state.has_or_used_item(Item::OldKey) {
-    state.collect_item(Item::OldKey);
+  if !state.has_or_used_item(Item::Sword) {
+    state.collect_item(Item::Sword);
     GameAction::ShowMessage(MessageType::Generic(
       "Use this sword to defeat the evil dragon.\n\nThe fairy queen gave you 'sword'.".into(),
     ))

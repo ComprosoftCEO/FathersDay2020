@@ -7,6 +7,7 @@ pub struct State {
   inventory: HashMap<Item, ItemStatus>,
   actions: HashSet<Action>,
   starfish: [bool; 5],
+  hay_cleaned: u32,
 }
 
 #[derive(PartialEq)]
@@ -21,6 +22,7 @@ impl State {
       inventory: HashMap::new(),
       actions: HashSet::new(),
       starfish: [false; 5],
+      hay_cleaned: 0,
     }
   }
 
@@ -89,10 +91,28 @@ impl State {
       .fold(0, |acc, collected| if *collected { acc + 1 } else { acc })
   }
 
+  pub fn all_starfish_collected(&self) -> bool {
+    self.count_collected_starfish() == 5
+  }
+
+  pub fn clean_hay(&mut self) {
+    if self.hay_cleaned < 6 {
+      self.hay_cleaned += 1;
+    }
+  }
+
+  pub fn get_number_hay_cleaned(&self) -> u32 {
+    self.hay_cleaned
+  }
+
+  pub fn is_hay_all_clean(&self) -> bool {
+    self.hay_cleaned == 6
+  }
+
   pub fn list_inventory(&self) {
-    // Print shells
+    // Print starfish (custom)
     let num_starfish = self.count_collected_starfish();
-    if num_starfish > 0 {
+    if num_starfish > 0 && !self.has_or_used_item(Item::Shield) {
       println!("  * starfish (x{})", num_starfish);
     }
 

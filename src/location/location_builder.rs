@@ -247,7 +247,10 @@ impl Location for BuiltLocation {
     match self.0.people.get(person) {
       Some(p) => match p.give_to.get(item) {
         Some(action) => (*action)(state),
-        None => GameAction::ShowMessage(MessageType::CantGiveItem(person.into(), item.into())),
+        None => match Item::find_string(item) {
+          Some(_) => GameAction::ShowMessage(MessageType::CantGiveItem(person.into(), item.into())),
+          None => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
+        },
       },
       None => GameAction::ShowMessage(MessageType::NoPerson(person.into())),
     }
