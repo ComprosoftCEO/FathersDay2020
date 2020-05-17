@@ -2,32 +2,49 @@ use std::collections::HashMap;
 
 use crate::action::Action;
 use crate::item::Item;
-use crate::location::Location;
+use crate::location::{GameAction, Location, MessageType};
 use crate::state::State;
 
-type ImmutableStateFn = Box<dyn Fn(&State) -> String>;
-type MutableStateFn = Box<dyn Fn(&mut State) -> String>;
-type LocationFn = Box<dyn Fn(&mut State) -> Result<Box<dyn Location>, String>>;
+type BoxedLocationFn = Box<dyn Fn(&State) -> String>;
+type BoxedStateFn = Box<dyn Fn(&mut State) -> GameAction>;
 
 struct Person {
-  talk_to: Option<MutableStateFn>,
-  give_to: HashMap<&'static str, MutableStateFn>,
+  talk_to: Option<BoxedStateFn>,
+  give_to: HashMap<&'static str, BoxedStateFn>,
+}
+
+enum ImageType {
+  Static(&'static str),
+  Dynamic(BoxedLocationFn),
 }
 
 pub struct LocationBuilder {
-  get_image: ImmutableStateFn,
-  locations: HashMap<&'static str, LocationFn>,
-  pickup_items: HashMap<&'static str, MutableStateFn>,
-  use_items: HashMap<&'static str, MutableStateFn>,
+  label: &'static str,
+  image: ImageType,
+  locations: HashMap<&'static str, BoxedStateFn>,
+  pickup_items: HashMap<&'static str, BoxedStateFn>,
+  use_items: HashMap<&'static str, BoxedStateFn>,
   people: HashMap<&'static str, Person>,
 }
 
 pub struct BuiltLocation(LocationBuilder);
 
 impl LocationBuilder {
-  pub fn new(get_image: impl Fn(&State) -> String + 'static) -> Self {
+  pub fn new(label: &'static str, image: &'static str) -> Self {
     LocationBuilder {
-      get_image: Box::new(get_image),
+      label,
+      image: ImageType::Static(image),
+      locations: HashMap::new(),
+      pickup_items: HashMap::new(),
+      use_items: HashMap::new(),
+      people: HashMap::new(),
+    }
+  }
+
+  pub fn new_dynamic(label: &'static str, get_image: impl Fn(&State) -> String + 'static) -> Self {
+    LocationBuilder {
+      label,
+      image: ImageType::Dynamic(Box::new(get_image)),
       locations: HashMap::new(),
       pickup_items: HashMap::new(),
       use_items: HashMap::new(),
@@ -36,45 +53,75 @@ impl LocationBuilder {
   }
 
   pub fn add_location(mut self, name: &'static str, create_location: impl Fn() -> Box<dyn Location> + 'static) -> Self {
-    self.locations.insert(name, Box::new(move |_| Ok(create_location())));
+    self
+      .locations
+      .insert(name, Box::new(move |_| GameAction::MoveTo(create_location())));
     self
   }
 
-  pub fn add_dynamic_location(
-    mut self,
-    name: &'static str,
-    func: impl Fn(&mut State) -> Result<Box<dyn Location>, String> + 'static,
-  ) -> Self {
+  pub fn add_dynamic_location(mut self, name: &'static str, func: impl Fn(&mut State) -> GameAction + 'static) -> Self {
     self.locations.insert(name, Box::new(func));
     self
   }
 
-  pub fn add_item(mut self, name: &'static str, item: Item, action: Option<Action>) -> Self {
+  pub fn add_item(mut self, name: &'static str, item: Item) -> Self {
     self.pickup_items.insert(
       name,
-      Box::new(move |state: &mut State| -> String {
-        state.insert_item(item);
-        if let Some(a) = action {
-          state.set_action(a);
+      Box::new(move |state: &mut State| -> GameAction {
+        if !state.has_or_used_item(item) {
+          state.collect_item(item);
+          GameAction::RedrawWithMessage(MessageType::ItemCollected(item))
+        } else {
+          GameAction::ShowMessage(MessageType::NoItem(name.into()))
         }
-
-        format!("Collected item {}", item.to_string())
       }),
     );
     self
   }
 
-  pub fn add_dynamic_item(
-    mut self,
-    name: &'static str,
-    item: Item,
-    func: impl Fn(&mut State) -> String + 'static,
-  ) -> Self {
+  pub fn add_dynamic_item(mut self, name: &'static str, func: impl Fn(&mut State) -> GameAction + 'static) -> Self {
     self.pickup_items.insert(name, Box::new(func));
     self
   }
 
-  pub fn add_person(mut self, person: &'static str, talk: impl Fn(&mut State) -> String + 'static) -> Self {
+  pub fn add_use_item(mut self, name: &'static str, item: Item) -> Self {
+    self.use_items.insert(
+      name,
+      Box::new(move |state: &mut State| -> GameAction {
+        if !state.has_used_item(item) {
+          state.use_item(item);
+          GameAction::RedrawScreen()
+        } else {
+          GameAction::ShowMessage(MessageType::NotInInventory(name.into()))
+        }
+      }),
+    );
+    self
+  }
+
+  pub fn add_dynamic_use_item(mut self, name: &'static str, func: impl Fn(&mut State) -> GameAction + 'static) -> Self {
+    self.use_items.insert(name, Box::new(func));
+    self
+  }
+
+  pub fn add_use_item_action(self, name: &'static str, action: Action) -> Self {
+    self.add_dynamic_use_item(name, move |state: &mut State| -> GameAction {
+      state.set_action(action);
+      GameAction::RedrawScreen()
+    })
+  }
+
+  pub fn add_talk_person(self, person: &'static str, message: &'static str) -> Self {
+    self.add_dynamic_talk_person(person, move |_| {
+      GameAction::ShowMessage(MessageType::PersonTalking(person.into(), message.into()))
+    })
+  }
+
+  pub fn add_dynamic_talk_person(
+    mut self,
+    person: &'static str,
+    talk: impl Fn(&mut State) -> GameAction + 'static,
+  ) -> Self {
     match self.people.get_mut(person) {
       Some(ref mut p) => {
         p.talk_to = Some(Box::new(talk));
@@ -97,14 +144,14 @@ impl LocationBuilder {
     mut self,
     person: &'static str,
     item: &'static str,
-    func: impl Fn(&mut State) -> String + 'static,
+    func: impl Fn(&mut State) -> GameAction + 'static,
   ) -> Self {
     match self.people.get_mut(person) {
       Some(ref mut person) => {
         person.give_to.insert(item, Box::new(func));
       }
       None => {
-        let mut map: HashMap<&str, MutableStateFn> = HashMap::new();
+        let mut map: HashMap<&str, BoxedStateFn> = HashMap::new();
         map.insert(item, Box::new(func));
 
         self.people.insert(
@@ -123,46 +170,66 @@ impl LocationBuilder {
   pub fn finish(self) -> impl Location {
     BuiltLocation(self)
   }
+}
 
-  pub fn finish_boxed(self) -> Box<impl Location> {
-    Box::new(BuiltLocation(self))
+impl BuiltLocation {
+  pub fn boxed(self) -> Box<Self> {
+    Box::new(self)
   }
 }
 
 impl Location for BuiltLocation {
   fn get_image(&self, state: &State) -> String {
-    (*self.0.get_image)(state)
-  }
-
-  fn move_to(&self, state: &mut State, direction: &str) -> Option<Result<Box<dyn Location>, String>> {
-    self.0.locations.get(direction).map(|l| (*l)(state))
-  }
-
-  fn pickup_item(&self, state: &mut State, item: &str) -> Option<String> {
-    self.0.pickup_items.get(item).map(|i| (*i)(state))
-  }
-
-  fn use_item(&self, state: &mut State, item: &str) -> Option<String> {
-    self.0.use_items.get(item).map(|i| (*i)(state))
-  }
-
-  fn talk_to(&self, state: &mut State, person: &str) -> Option<String> {
-    if let Some(p) = self.0.people.get(person) {
-      if let Some(ref talk_to) = p.talk_to {
-        return Some((*talk_to)(state));
-      } else {
-        return Some(format!("Cannot talk to {}", person));
-      }
+    match &self.0.image {
+      ImageType::Static(img) => (*img).into(),
+      ImageType::Dynamic(func) => func(state),
     }
-
-    None
   }
 
-  fn give_to(&self, state: &mut State, person: &str, item: &str) -> Option<Option<String>> {
-    if let Some(p) = self.0.people.get(person) {
-      return Some(p.give_to.get(item).map(|i| (*i)(state)));
-    }
+  fn move_to(&self, state: &mut State, direction: &str) -> GameAction {
+    self
+      .0
+      .locations
+      .get(direction)
+      .map(|action| (*action)(state))
+      .unwrap_or_else(|| GameAction::ShowMessage(MessageType::NoLocation(direction.into())))
+  }
 
-    None
+  fn pickup_item(&self, state: &mut State, item: &str) -> GameAction {
+    self
+      .0
+      .pickup_items
+      .get(item)
+      .map(|action| (*action)(state))
+      .unwrap_or_else(|| GameAction::ShowMessage(MessageType::NoItem(item.into())))
+  }
+
+  fn use_item(&self, state: &mut State, item: &str) -> GameAction {
+    self
+      .0
+      .use_items
+      .get(item)
+      .map(|action| (*action)(state))
+      .unwrap_or_else(|| GameAction::ShowMessage(MessageType::CantUseItem(item.into())))
+  }
+
+  fn talk_to(&self, state: &mut State, person: &str) -> GameAction {
+    match self.0.people.get(person) {
+      Some(p) => match &p.talk_to {
+        Some(action) => (*action)(state),
+        None => GameAction::ShowMessage(MessageType::CantTalkTo(person.into())),
+      },
+      None => GameAction::ShowMessage(MessageType::NoPerson(person.into())),
+    }
+  }
+
+  fn give_to(&self, state: &mut State, person: &str, item: &str) -> GameAction {
+    match self.0.people.get(person) {
+      Some(p) => match p.give_to.get(item) {
+        Some(action) => (*action)(state),
+        None => GameAction::ShowMessage(MessageType::CantGiveItem(person.into(), item.into())),
+      },
+      None => GameAction::ShowMessage(MessageType::NoPerson(person.into())),
+    }
   }
 }
