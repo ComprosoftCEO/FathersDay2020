@@ -17,9 +17,11 @@ mod temple_ruins;
 mod village_outside;
 
 pub mod cliffs;
-pub mod fortress;
+// pub mod fortress;
 pub mod other;
 pub mod village;
+
+pub mod helpers;
 
 pub use beach1::beach1;
 pub use beach2::beach2;

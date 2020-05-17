@@ -66,6 +66,14 @@ impl State {
     }
   }
 
+  pub fn has_collected_starfish(&self, index: usize) -> bool {
+    if index > 0 && index <= 5 {
+      self.starfish[index - 1]
+    } else {
+      false
+    }
+  }
+
   pub fn count_collected_starfish(&self) -> u32 {
     self
       .starfish

@@ -1,9 +1,8 @@
-use crate::action::Action;
 use crate::item::Item;
-use crate::location::{Location, LocationBuilder};
+use crate::location::{GameAction, Location, LocationBuilder, MessageType};
 use crate::state::State;
 
-const beach1_image: &str = &r#"
+const BEACH1_IMAGE: &str = r#"
                         ^                        
 <-left        .        up                    .   
 __      .                           `            
@@ -17,7 +16,7 @@ __      .                           `
    |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 "#;
 
-const beach1_ladder: &str = r#"
+const BEACH1_LADDER: &str = r#"
                         ^                        
 <-left        .        up                    .   
 __   |  |                           `            
@@ -32,14 +31,28 @@ __   |  |                           `
 "#;
 
 pub fn beach1() -> Box<dyn Location> {
-  LocationBuilder::new(get_string)
-    .add_location("beach", new_beach)
-    .add_location("beach2", new_beach)
-    .add_location("beach3", new_beach)
-    .add_item("shell", Item::Shell(1), None)
-    .finish_boxed()
+  LocationBuilder::new_dynamic("Beach", get_image)
+    .add_location("up", crate::locations::plains1)
+    .add_location("right", crate::locations::beach2)
+    .add_dynamic_location("left", climb_cliffs)
+    .add_use_item("ladder", Item::Ladder)
+    .finish()
 }
 
-fn get_string(s: &State) -> String {
-  "String".into()
+fn get_image(state: &State) -> String {
+  if state.has_used_item(Item::Ladder) {
+    BEACH1_LADDER.into()
+  } else {
+    BEACH1_IMAGE.into()
+  }
+}
+
+fn climb_cliffs(state: &mut State) -> GameAction {
+  if state.has_used_item(Item::Ladder) {
+    GameAction::MoveTo(crate::locations::cliffs_bottom())
+  } else {
+    GameAction::ShowMessage(MessageType::Generic(
+      "The cliffs are too steep to climb. If only you had a ladder...".into(),
+    ))
+  }
 }

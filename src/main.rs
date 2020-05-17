@@ -11,12 +11,5 @@ use item::Item;
 use state::State;
 
 fn main() {
-  let mut state = State::new();
-
-  state.insert_item(Item::Shell(1));
-
-  println!("{}", state.has_item(Item::Shell(2)));
-  state.insert_item(Item::Shell(2));
-
-  println!("{}", state.has_item(Item::Shell(2)));
+  let l = locations::beach1();
 }

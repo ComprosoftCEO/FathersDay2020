@@ -3,7 +3,7 @@ use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
 use crate::state::State;
 
-const hut_inside_image: &str = r#"
+const HUT_INSIDE_IMAGE: &str = r#"
         _________________________________        
        |  _____________________________  |       
        | |     `       ()              | |       
@@ -17,4 +17,11 @@ const hut_inside_image: &str = r#"
                  | |         | |                 
 "#;
 
-pub fn hut_inside() -> Box<dyn Location> {}
+pub fn hut_inside() -> Box<dyn Location> {
+  LocationBuilder::new("Hermit Hut", HUT_INSIDE_IMAGE)
+    .add_location("out", crate::locations::hermit_hut)
+    .add_talk_person("hermit", "Hummm......")
+    .finish()
+}
+
+// TODO: Hermit Actions

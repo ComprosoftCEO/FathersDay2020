@@ -3,7 +3,7 @@ use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
 use crate::state::State;
 
-const hermit_hut_image: &str = r#"
+const HERMIT_HUT_IMAGE: &str = r#"
         __                                       
        ()()                   \/           _____ 
  \/     ())              ___________      ((() ))
@@ -17,4 +17,9 @@ const hermit_hut_image: &str = r#"
          \/                          \/          
 "#;
 
-pub fn hermit_hut() -> Box<dyn Location> {}
+pub fn hermit_hut() -> Box<dyn Location> {
+  LocationBuilder::new("Hermit Hut", HERMIT_HUT_IMAGE)
+    .add_location("left", super::river_bridge)
+    .add_location("hut", super::other::hut_inside)
+    .finish()
+}

@@ -3,7 +3,7 @@ use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
 use crate::state::State;
 
-const tower2_image: &str = r#"
+const TOWER2_IMAGE: &str = r#"
       |                ^                  |      
       |_______________up__________________|      
      /                         ____|       \     
@@ -17,4 +17,9 @@ const tower2_image: &str = r#"
 |                       V           ____|       |
 "#;
 
-pub fn tower2() -> Box<dyn Location> {}
+pub fn tower2() -> Box<dyn Location> {
+  LocationBuilder::new("Tower", TOWER2_IMAGE)
+    .add_location("up", super::tower3)
+    .add_location("down", super::tower1)
+    .finish()
+}

@@ -3,7 +3,7 @@ use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
 use crate::state::State;
 
-const tower3_image: &str = r#"
+const TOWER3_IMAGE: &str = r#"
             _________________________            
            /                         \           
           /                           \          
@@ -17,4 +17,30 @@ const tower3_image: &str = r#"
      /                  V      ____|       \     
 "#;
 
-pub fn tower3() -> Box<dyn Location> {}
+const TOWER3_NO_LADDER: &str = r#"
+            _________________________            
+           /                         \           
+          /                           \          
+         /                             \         
+        /                               \        
+       /                                 \       
+      |                                   |      
+      |                                   |      
+      |                                   |      
+      |________________down_______________|      
+     /                  V      ____|       \     
+"#;
+
+pub fn tower3() -> Box<dyn Location> {
+  LocationBuilder::new_dynamic("Tower", get_image)
+    .add_item("ladder", Item::Ladder)
+    .finish()
+}
+
+fn get_image(state: &State) -> String {
+  if state.has_or_used_item(Item::Ladder) {
+    TOWER3_NO_LADDER.into()
+  } else {
+    TOWER3_IMAGE.into()
+  }
+}

@@ -59,6 +59,18 @@ impl LocationBuilder {
     self
   }
 
+  pub fn add_location_no_duplicate(
+    self,
+    name: &'static str,
+    create_location: impl Fn() -> Box<dyn Location> + 'static,
+  ) -> Self {
+    if !self.locations.contains_key(name) {
+      self.add_location(name, create_location)
+    } else {
+      self
+    }
+  }
+
   pub fn add_dynamic_location(mut self, name: &'static str, func: impl Fn(&mut State) -> GameAction + 'static) -> Self {
     self.locations.insert(name, Box::new(func));
     self
@@ -76,6 +88,7 @@ impl LocationBuilder {
         }
       }),
     );
+
     self
   }
 
@@ -96,6 +109,7 @@ impl LocationBuilder {
         }
       }),
     );
+
     self
   }
 
@@ -111,7 +125,7 @@ impl LocationBuilder {
     })
   }
 
-  pub fn add_talk_person(self, person: &'static str, message: &'static str) -> Self {
+  pub fn add_talk_person(mut self, person: &'static str, message: &'static str) -> Self {
     self.add_dynamic_talk_person(person, move |_| {
       GameAction::ShowMessage(MessageType::PersonTalking(person.into(), message.into()))
     })
@@ -167,14 +181,8 @@ impl LocationBuilder {
     self
   }
 
-  pub fn finish(self) -> impl Location {
-    BuiltLocation(self)
-  }
-}
-
-impl BuiltLocation {
-  pub fn boxed(self) -> Box<Self> {
-    Box::new(self)
+  pub fn finish(self) -> Box<impl Location> {
+    Box::new(BuiltLocation(self))
   }
 }
 

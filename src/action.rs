@@ -1,2 +1,4 @@
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Action {}
+pub enum Action {
+  SewerStopped,
+}

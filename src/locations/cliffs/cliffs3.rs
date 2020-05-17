@@ -3,7 +3,7 @@ use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
 use crate::state::State;
 
-const cliffs3_image: &str = r#"
+const CLIFFS3_IMAGE: &str = r#"
                                                  
                        guru      ~~~             
    ~~~~~~~~                                      
@@ -17,4 +17,10 @@ const cliffs3_image: &str = r#"
                  |      V   `|                   
 "#;
 
-pub fn cliffs3() -> Box<dyn Location> {}
+pub fn cliffs3() -> Box<dyn Location> {
+  LocationBuilder::new("Cliffs", CLIFFS3_IMAGE)
+    .add_location("down", super::cliffs2)
+    .finish()
+}
+
+// TODO: Program the Guru
