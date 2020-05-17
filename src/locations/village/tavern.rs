@@ -19,6 +19,7 @@ const TAVERN_IMAGE: &str = r#"
 
 pub fn tavern() -> Box<dyn Location> {
   LocationBuilder::new("Tavern", TAVERN_IMAGE)
+    .add_location("out", crate::locations::village_outside)
     .add_talk_person("amy", "I hear that there is a fairy cave underneath the lake...")
     .add_talk_person(
       "jeff",

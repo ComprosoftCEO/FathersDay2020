@@ -89,7 +89,7 @@ fn test_old_key(state: &mut State) -> GameAction {
     return GameAction::ShowMessage(MessageType::CantUseItem("oldkey".into()));
   }
 
-  if state.has_collected_item(Item::OldKey) {
+  if state.can_use_item(Item::OldKey) {
     state.use_item(Item::OldKey);
     GameAction::RedrawWithMessage(MessageType::Generic("The old fortress gate slowly creaks open".into()))
   } else {

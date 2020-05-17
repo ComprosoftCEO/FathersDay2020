@@ -52,7 +52,7 @@ fn get_image(state: &State) -> String {
 }
 
 fn use_amulet(state: &mut State) -> GameAction {
-  if !state.has_used_item(Item::Amulet) {
+  if state.can_use_item(Item::Amulet) {
     state.use_item(Item::Amulet);
     GameAction::RedrawWithMessage(MessageType::Generic(
       "You feel the magic stirring in the temple ruins as you use the amulet...".into(),

@@ -1,15 +1,13 @@
-#[macro_use]
-extern crate lazy_static;
-
 mod action;
+mod game;
 mod item;
 mod location;
 mod locations;
 mod state;
 
-use item::Item;
-use state::State;
+use game::Game;
 
 fn main() {
-  let l = locations::beach1();
+  let g = Game::new();
+  g.run();
 }

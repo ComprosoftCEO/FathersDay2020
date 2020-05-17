@@ -48,6 +48,14 @@ impl State {
       .unwrap_or(false)
   }
 
+  pub fn can_use_item(&self, item: Item) -> bool {
+    self
+      .inventory
+      .get(&item)
+      .map::<bool, _>(|s| *s == ItemStatus::Collected)
+      .unwrap_or(false)
+  }
+
   pub fn has_or_used_item(&self, item: Item) -> bool {
     self.inventory.contains_key(&item)
   }
@@ -85,13 +93,13 @@ impl State {
     // Print shells
     let num_starfish = self.count_collected_starfish();
     if num_starfish > 0 {
-      println!("starfish (x{})", num_starfish);
+      println!("  * starfish (x{})", num_starfish);
     }
 
     // Print collected items
     for (item, status) in self.inventory.iter() {
       if *status == ItemStatus::Collected {
-        println!("{}", item.to_string());
+        println!("  * {}", item.to_string());
       }
     }
   }

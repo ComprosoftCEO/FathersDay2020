@@ -33,6 +33,7 @@ const TOWER3_NO_LADDER: &str = r#"
 
 pub fn tower3() -> Box<dyn Location> {
   LocationBuilder::new_dynamic("Tower", get_image)
+    .add_location("down", super::tower2)
     .add_item("ladder", Item::Ladder)
     .finish()
 }

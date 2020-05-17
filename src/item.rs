@@ -1,4 +1,7 @@
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+
+#[derive(Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
 pub enum Item {
   Ladder,
   Whistle,
@@ -6,6 +9,12 @@ pub enum Item {
   Log,
   OldKey,
   Armor,
+}
+
+impl Item {
+  pub fn find_string(s: &str) -> Option<Item> {
+    Item::iter().find(|i| i.to_string() == s)
+  }
 }
 
 impl ToString for Item {

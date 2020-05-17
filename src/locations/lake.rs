@@ -34,6 +34,7 @@ ______        \/     __________/     |\     \/
 pub fn lake() -> Box<dyn Location> {
   LocationBuilder::new_dynamic("Lake", get_image)
     .add_location("up", super::river_bridge)
+    .add_use_item("whistle", Item::Whistle)
     .add_dynamic_location("cave", test_cave)
     .finish()
 }

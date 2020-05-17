@@ -101,7 +101,7 @@ impl LocationBuilder {
     self.use_items.insert(
       name,
       Box::new(move |state: &mut State| -> GameAction {
-        if !state.has_used_item(item) {
+        if state.can_use_item(item) {
           state.use_item(item);
           GameAction::RedrawScreen()
         } else {
@@ -186,12 +186,21 @@ impl LocationBuilder {
   }
 }
 
+impl BuiltLocation {
+  pub fn center_label(&self) -> String {
+    let len = (49 - self.0.label.len()) / 2;
+    return " ".repeat(len) + self.0.label;
+  }
+}
+
 impl Location for BuiltLocation {
   fn get_image(&self, state: &State) -> String {
-    match &self.0.image {
+    let picture: String = match &self.0.image {
       ImageType::Static(img) => (*img).into(),
       ImageType::Dynamic(func) => func(state),
-    }
+    };
+
+    format!("{}\n{}\n", picture, self.center_label())
   }
 
   fn move_to(&self, state: &mut State, direction: &str) -> GameAction {
@@ -218,7 +227,10 @@ impl Location for BuiltLocation {
       .use_items
       .get(item)
       .map(|action| (*action)(state))
-      .unwrap_or_else(|| GameAction::ShowMessage(MessageType::CantUseItem(item.into())))
+      .unwrap_or_else(|| match Item::find_string(item) {
+        Some(_) => GameAction::ShowMessage(MessageType::CantUseItem(item.into())),
+        None => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
+      })
   }
 
   fn talk_to(&self, state: &mut State, person: &str) -> GameAction {
