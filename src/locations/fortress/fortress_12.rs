@@ -1,9 +1,6 @@
-use crate::action::Action;
-use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
-use crate::state::State;
 
-const dungeon_12: &str = r#"
+const DUNGEON_12: &str = r#"
                                                  
     _________________________________________    
    |                                         |   
@@ -18,7 +15,7 @@ const dungeon_12: &str = r#"
 "#;
 
 pub fn fortress_12() -> Box<dyn Location> {
-  LocationBuilder::new("Fortress", dungeon_12)
+  LocationBuilder::new("Fortress", DUNGEON_12)
     .add_location("right", super::fortress_13)
     .finish()
 }

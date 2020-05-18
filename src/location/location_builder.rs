@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use crate::action::Action;
 use crate::item::Item;
 use crate::location::{GameAction, Location, MessageType};
 use crate::state::State;
@@ -118,14 +117,7 @@ impl LocationBuilder {
     self
   }
 
-  pub fn add_use_item_action(self, name: &'static str, action: Action) -> Self {
-    self.add_dynamic_use_item(name, move |state: &mut State| -> GameAction {
-      state.set_action(action);
-      GameAction::RedrawScreen()
-    })
-  }
-
-  pub fn add_talk_person(mut self, person: &'static str, message: &'static str) -> Self {
+  pub fn add_talk_person(self, person: &'static str, message: &'static str) -> Self {
     self.add_dynamic_talk_person(person, move |_| {
       GameAction::ShowMessage(MessageType::PersonTalking(person.into(), message.into()))
     })

@@ -1,10 +1,8 @@
-use super::helpers::{clear_traps_action, get_fortress_image, test_traps_action, TrapType};
 use crate::action::Action;
-use crate::item::Item;
 use crate::location::{GameAction, Location, LocationBuilder, MessageType};
 use crate::state::State;
 
-const dungeon_33: &str = r#"
+const DUNGEON_33: &str = r#"
                                                  
     _________________________________________    
    |               _______                   |   
@@ -18,7 +16,7 @@ const dungeon_33: &str = r#"
                                                  
 "#;
 
-const dungeon_33_defeated: &str = r#"
+const DUNGEON_33_DEFEATED: &str = r#"
                                                  
     _________________________________________    
    |                                         |   
@@ -42,9 +40,9 @@ pub fn fortress_33() -> Box<dyn Location> {
 
 fn get_image(state: &State) -> String {
   if state.has_taken_action(Action::BossDefeated) {
-    dungeon_33_defeated.into()
+    DUNGEON_33_DEFEATED.into()
   } else {
-    dungeon_33.into()
+    DUNGEON_33.into()
   }
 }
 

@@ -1,7 +1,4 @@
-use crate::action::Action;
-use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
-use crate::state::State;
 
 const CLIFFS2_IMAGE: &str = r#"
                  |      ^    |                   

@@ -1,4 +1,3 @@
-use crate::action::Action;
 use crate::item::Item;
 use crate::location::{GameAction, Location, LocationBuilder, MessageType};
 use crate::state::State;

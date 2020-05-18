@@ -1,10 +1,8 @@
 use super::helpers::{clear_traps_action, get_fortress_image, test_traps_action, TrapType};
 use crate::action::Action;
-use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
-use crate::state::State;
 
-const dungeon_54: &str = r#"
+const DUNGEON_54: &str = r#"
                    |    ^    |                   
     _______________|   up    |_______________    
    |    \  /   /   /\  /\   \ /  \   /  \/  /|   
@@ -18,7 +16,7 @@ ___    /   /\  /\  /    \ / \   \/   /  /   / ___
                                                  
 "#;
 
-const dungeon_54_clear: &str = r#"
+const DUNGEON_54_CLEAR: &str = r#"
                    |    ^    |                   
     _______________|   up    |_______________    
    |                                         |   
@@ -35,7 +33,7 @@ ___                                           ___
 pub fn fortress_54() -> Box<dyn Location> {
   LocationBuilder::new_dynamic(
     "Fortress",
-    get_fortress_image(dungeon_54, dungeon_54_clear, Action::Clear54),
+    get_fortress_image(DUNGEON_54, DUNGEON_54_CLEAR, Action::Clear54),
   )
   .add_location("left", super::fortress_53)
   .add_dynamic_location(

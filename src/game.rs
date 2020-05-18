@@ -73,7 +73,7 @@ impl Game {
 
     // Add the line to history
     if trimmed_line != self.last_command {
-      history::listmgmt::add(&line);
+      history::listmgmt::add(&line).expect("Error adding to history!");
       self.last_command = trimmed_line.into();
     }
 

@@ -1,5 +1,3 @@
-use crate::action::Action;
-use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
 use crate::locations::helpers::collect_starfish;
 use crate::state::State;

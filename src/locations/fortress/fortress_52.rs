@@ -1,10 +1,6 @@
-use super::helpers::{clear_traps_action, get_fortress_image, test_traps_action, TrapType};
-use crate::action::Action;
-use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
-use crate::state::State;
 
-const dungeon_52: &str = r#"
+const DUNGEON_52: &str = r#"
                    |    ^    |                   
     _______________|   up    |_______________    
    |                                         |   
@@ -19,7 +15,7 @@ const dungeon_52: &str = r#"
 "#;
 
 pub fn fortress_52() -> Box<dyn Location> {
-  LocationBuilder::new("Fortress", dungeon_52)
+  LocationBuilder::new("Fortress", DUNGEON_52)
     .add_location("up", super::fortress_42)
     .finish()
 }

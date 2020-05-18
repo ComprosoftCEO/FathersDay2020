@@ -1,10 +1,8 @@
-use super::helpers::{clear_traps_action, get_fortress_image, test_traps_action, TrapType};
-use crate::action::Action;
 use crate::item::Item;
 use crate::location::{GameAction, Location, LocationBuilder, MessageType};
 use crate::state::State;
 
-const dungeon_44: &str = r#"
+const DUNGEON_44: &str = r#"
                    |    ^    |                   
     _______________|   up    |_______________    
    |             |=============|             |   
@@ -18,7 +16,7 @@ const dungeon_44: &str = r#"
                    |    V    |                   
 "#;
 
-const dungeon_44_open: &str = r#"
+const DUNGEON_44_OPEN: &str = r#"
                    |    ^    |                   
     _______________|   up    |_______________    
    |             |=|         |=|             |   
@@ -42,9 +40,9 @@ pub fn fortress_44() -> Box<dyn Location> {
 
 fn get_image(state: &State) -> String {
   if state.has_used_item(Item::BossKey) {
-    dungeon_44_open.into()
+    DUNGEON_44_OPEN.into()
   } else {
-    dungeon_44.into()
+    DUNGEON_44.into()
   }
 }
 

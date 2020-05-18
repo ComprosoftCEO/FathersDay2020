@@ -1,10 +1,8 @@
-use super::helpers::{clear_traps_action, get_fortress_image, test_traps_action, TrapType};
-use crate::action::Action;
 use crate::item::Item;
 use crate::location::{Location, LocationBuilder};
 use crate::state::State;
 
-const dungeon_35: &str = r#"
+const DUNGEON_35: &str = r#"
                    |    ^    |                   
     _______________|   up    |_______________    
    |                                         |   
@@ -18,7 +16,7 @@ const dungeon_35: &str = r#"
                                                  
 "#;
 
-const dungeon_35_no_key: &str = r#"
+const DUNGEON_35_NO_KEY: &str = r#"
                    |    ^    |                   
     _______________|   up    |_______________    
    |                                         |   
@@ -41,8 +39,8 @@ pub fn fortress_35() -> Box<dyn Location> {
 
 pub fn get_image(state: &State) -> String {
   if state.has_or_used_item(Item::BossKey) {
-    dungeon_35_no_key.into()
+    DUNGEON_35_NO_KEY.into()
   } else {
-    dungeon_35.into()
+    DUNGEON_35.into()
   }
 }
