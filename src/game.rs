@@ -28,20 +28,12 @@ impl Game {
   }
 
   pub fn run(mut self) -> bool {
-    Game::init_terminal();
-
     self.print_current_location();
     while self.running {
       self.read_and_execute_command();
     }
 
     self.winner
-  }
-
-  fn init_terminal() {
-    unsafe {
-      rl_inhibit_completion = 1;
-    }
   }
 
   fn read_and_execute_command(&mut self) {
@@ -100,8 +92,8 @@ impl Game {
           print!("\n");
         }
       }
-      "whereami" => {
-        if test_arguments("whereami", arguments.len(), 0) {
+      "clear" => {
+        if test_arguments("clear", arguments.len(), 0) {
           self.print_current_location()
         }
       }
@@ -166,18 +158,24 @@ impl Game {
 
 fn show_help() {
   println!("\nAll Commands:");
-  println!("  inventory            = Print all items in inventory");
-  println!("  whereami             = Redraw the current location\n");
   println!("  go   <place>         = Move to a new location");
   println!("  take <item>          = Pick up an item");
   println!("  use  <item>          = Use or interact with an item in the room");
   println!("  talk <person>        = Speak to a person");
-  println!("  give <person> <item> = Give an item to a person\n");
-  println!("  help = Help screen");
-  println!("  exit = End the game\n");
+  println!("  give <person> <item> = Give an item to a person");
+  println!("  inventory            = Print all items in inventory\n");
+  println!("  clear = Redraw the current location");
+  println!("  help  = Help screen");
+  println!("  exit  = End the game\n");
 }
 
-fn confirm(prompt: &'static str) -> bool {
+pub fn init_terminal() {
+  unsafe {
+    rl_inhibit_completion = 1;
+  }
+}
+
+pub fn confirm(prompt: &'static str) -> bool {
   let prompt: String = format!("{} [Y|N] ", prompt);
   loop {
     let data = readline(&*prompt);

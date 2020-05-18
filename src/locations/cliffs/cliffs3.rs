@@ -47,7 +47,7 @@ fn talk_guru(state: &mut State) -> GameAction {
   You, yourself, as much as anybody in the entire universe, deserve your love and affection.
   Health is the greatest gift, contentment the greatest wealth, faithfulness the best relationship.
 
-Now you are ready for the temple ruins! Go!"#
+Now you are ready for the temple ruins! Go back and talk to the hermit!"#
         .into(),
     ));
   } else {
