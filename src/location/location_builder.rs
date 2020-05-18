@@ -228,8 +228,8 @@ impl Location for BuiltLocation {
       .get(item)
       .map(|action| (*action)(state))
       .unwrap_or_else(|| match Item::find_string(item) {
-        Some(_) => GameAction::ShowMessage(MessageType::CantUseItem(item.into())),
-        None => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
+        Some(i) if state.has_collected_item(i) => GameAction::ShowMessage(MessageType::CantUseItem(item.into())),
+        _ => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
       })
   }
 
@@ -248,8 +248,10 @@ impl Location for BuiltLocation {
       Some(p) => match p.give_to.get(item) {
         Some(action) => (*action)(state),
         None => match Item::find_string(item) {
-          Some(_) => GameAction::ShowMessage(MessageType::CantGiveItem(person.into(), item.into())),
-          None => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
+          Some(i) if state.has_collected_item(i) => {
+            GameAction::ShowMessage(MessageType::CantGiveItem(person.into(), item.into()))
+          }
+          _ => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
         },
       },
       None => GameAction::ShowMessage(MessageType::NoPerson(person.into())),

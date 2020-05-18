@@ -13,25 +13,29 @@ pub struct Game {
   state: State,
   last_command: String,
   running: bool,
+  winner: bool,
 }
 
 impl Game {
   pub fn new() -> Self {
     Game {
-      location: crate::locations::beach2(),
+      location: crate::locations::plains2(),
       state: State::new(),
       last_command: "".into(),
       running: true,
+      winner: false,
     }
   }
 
-  pub fn run(mut self) {
+  pub fn run(mut self) -> bool {
     Game::init_terminal();
 
     self.print_current_location();
     while self.running {
       self.read_and_execute_command();
     }
+
+    self.winner
   }
 
   fn init_terminal() {
@@ -146,6 +150,10 @@ impl Game {
       GameAction::RedrawWithMessage(msg) => {
         self.print_current_location();
         println!("{}\n", msg.to_string());
+      }
+      GameAction::WinGame => {
+        self.running = false;
+        self.winner = true;
       }
     }
   }

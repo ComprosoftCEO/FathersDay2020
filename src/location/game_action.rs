@@ -6,4 +6,5 @@ pub enum GameAction {
   RedrawScreen(),
   ShowMessage(MessageType),
   RedrawWithMessage(MessageType),
+  WinGame,
 }

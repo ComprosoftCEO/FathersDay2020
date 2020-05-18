@@ -17,4 +17,8 @@ const dungeon_11: &str = r#"
                    |    V    |                   
 "#;
 
-pub fn fortress_11() -> Box<dyn Location> {}
+pub fn fortress_11() -> Box<dyn Location> {
+  LocationBuilder::new("Fortress", dungeon_11)
+    .add_location("down", super::fortress_21)
+    .finish()
+}

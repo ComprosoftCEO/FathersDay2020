@@ -17,7 +17,7 @@ mod temple_ruins;
 mod village_outside;
 
 pub mod cliffs;
-// pub mod fortress;
+pub mod fortress;
 pub mod other;
 pub mod village;
 

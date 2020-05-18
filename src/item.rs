@@ -12,6 +12,7 @@ pub enum Item {
   Pitchfork,
   Shield,
   Sword,
+  BossKey,
 }
 
 impl Item {
@@ -32,6 +33,7 @@ impl ToString for Item {
       Item::Pitchfork => "pitchfork".into(),
       Item::Shield => "shield".into(),
       Item::Sword => "sword".into(),
+      Item::BossKey => "bosskey".into(),
     }
   }
 }
