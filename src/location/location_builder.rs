@@ -219,9 +219,20 @@ impl Location for BuiltLocation {
       .use_items
       .get(item)
       .map(|action| (*action)(state))
-      .unwrap_or_else(|| match Item::find_string(item) {
-        Some(i) if state.has_collected_item(i) => GameAction::ShowMessage(MessageType::CantUseItem(item.into())),
-        _ => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
+      .unwrap_or_else(|| {
+        // Starfish is not stored in the "Items" enum
+        if item == "starfish" {
+          if state.has_starfish_in_inventory() {
+            return GameAction::ShowMessage(MessageType::CantUseItem(item.into()));
+          } else {
+            return GameAction::ShowMessage(MessageType::NotInInventory(item.into()));
+          }
+        }
+
+        match Item::find_string(item) {
+          Some(i) if state.has_collected_item(i) => GameAction::ShowMessage(MessageType::CantUseItem(item.into())),
+          _ => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
+        }
       })
   }
 
@@ -239,12 +250,23 @@ impl Location for BuiltLocation {
     match self.0.people.get(person) {
       Some(p) => match p.give_to.get(item) {
         Some(action) => (*action)(state),
-        None => match Item::find_string(item) {
-          Some(i) if state.has_collected_item(i) => {
-            GameAction::ShowMessage(MessageType::CantGiveItem(person.into(), item.into()))
+        None => {
+          // Starfish is not stored in the "Items" enum
+          if item == "starfish" {
+            if state.has_starfish_in_inventory() {
+              return GameAction::ShowMessage(MessageType::CantGiveItem(person.into(), item.into()));
+            } else {
+              return GameAction::ShowMessage(MessageType::NotInInventory(item.into()));
+            }
           }
-          _ => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
-        },
+
+          match Item::find_string(item) {
+            Some(i) if state.has_collected_item(i) => {
+              GameAction::ShowMessage(MessageType::CantGiveItem(person.into(), item.into()))
+            }
+            _ => GameAction::ShowMessage(MessageType::NotInInventory(item.into())),
+          }
+        }
       },
       None => GameAction::ShowMessage(MessageType::NoPerson(person.into())),
     }

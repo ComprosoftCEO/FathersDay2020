@@ -95,6 +95,10 @@ impl State {
     self.count_collected_starfish() == 5
   }
 
+  pub fn has_starfish_in_inventory(&self) -> bool {
+    !self.has_or_used_item(Item::Shield) && self.starfish.iter().find(|s| **s).is_some()
+  }
+
   pub fn clean_hay(&mut self) {
     if self.hay_cleaned < 6 {
       self.hay_cleaned += 1;
@@ -111,9 +115,8 @@ impl State {
 
   pub fn list_inventory(&self) {
     // Print starfish (custom)
-    let num_starfish = self.count_collected_starfish();
-    if num_starfish > 0 && !self.has_or_used_item(Item::Shield) {
-      println!("  * starfish (x{})", num_starfish);
+    if self.has_starfish_in_inventory() {
+      println!("  * starfish (x{})", self.count_collected_starfish());
     }
 
     // Print collected items
