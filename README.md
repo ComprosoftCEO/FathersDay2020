@@ -3,6 +3,12 @@ Island Adventure Game
 
 <br />
 
+## Gameplay
+
+![Father's Day 2020 GIF](FathersDay2020.gif)
+
+<br />
+
 ## About
 
 Every year, I like to program cards for my family for special events, including:
