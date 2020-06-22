@@ -58,3 +58,24 @@ pub fn get_state() -> Option<ReadlineState> {
 ```
 
 
+<br />
+
+## Running
+
+After the code has compiled, type the following command to run the game:
+```
+cargo run
+```
+
+You play the game using the following terminal commands:
+* __go__   &lt;place&gt;               = Move to a new location
+* __take__ &lt;item&gt;                = Pick up an item
+* __use__  &lt;item&gt;                = Use or interact with an item in the room
+* __talk__ &lt;person&gt;              = Speak to a person
+* __give__ &lt;person&gt; &lt;item&gt; = Give an item to a person
+* __inventory__                        = Print all items in your inventory
+
+Other Commands:
+* __clear__ = Redraw the current location
+* __help__  = Show the help screen
+* __exit__  = End the game
