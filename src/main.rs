@@ -5,7 +5,7 @@ mod location;
 mod locations;
 mod state;
 
-use game::{Game, confirm, init_terminal};
+use game::Game;
 
 const INTRO: &str = r#"
 ==========================================================================================================
@@ -55,10 +55,10 @@ const CARD: &str = r#"
 "#;
 
 fn main() {
-
-  init_terminal();
   show_intro();
-  if !confirm("Are you up to the challenge???") {
+
+  let mut g = Game::new();
+  if !g.confirm("Are you up to the challenge???") {
     println!("Okay! Bye Bye...");
     return;
   }
@@ -70,11 +70,11 @@ fn main() {
 }
 
 fn show_intro() {
-  print!("\x1B[2J\x1B[1;1H");
+  clearscreen::clear().ok();
   println!("{}", INTRO);
 }
 
 fn show_card() {
-  print!("\x1B[2J\x1B[1;1H");
+  clearscreen::clear().ok();
   println!("{}", CARD);
 }

@@ -1,12 +1,7 @@
-use rl_sys::history;
-use rl_sys::readline::readline;
+use rustyline::Editor;
 
 use crate::location::{GameAction, Location};
 use crate::state::State;
-
-extern "C" {
-  pub static mut rl_inhibit_completion: libc::c_int;
-}
 
 pub struct Game {
   location: Box<dyn Location>,
@@ -14,6 +9,7 @@ pub struct Game {
   last_command: String,
   running: bool,
   winner: bool,
+  rl: Editor<()>,
 }
 
 impl Game {
@@ -24,6 +20,7 @@ impl Game {
       last_command: "".into(),
       running: true,
       winner: false,
+      rl: Editor::new(),
     }
   }
 
@@ -44,17 +41,14 @@ impl Game {
   }
 
   fn read_line(&mut self) -> Option<String> {
-    let readline_data = readline("> ");
+    let readline_data = self.rl.readline("> ");
     let line: String = match readline_data {
       Err(e) => {
         println!("{}", e);
         self.running = false;
         return None;
       }
-      Ok(data) => match data {
-        Some(s) => s,
-        None => "".into(),
-      },
+      Ok(data) => data,
     };
 
     // Remove excess whitespace
@@ -65,7 +59,7 @@ impl Game {
 
     // Add the line to history
     if trimmed_line != self.last_command {
-      history::listmgmt::add(&line).expect("Error adding to history!");
+      self.rl.add_history_entry(&line);
       self.last_command = trimmed_line.into();
     }
 
@@ -81,7 +75,7 @@ impl Game {
         }
       }
       "exit" => {
-        if test_arguments("edit", arguments.len(), 0) && confirm("Really Exit?") {
+        if test_arguments("edit", arguments.len(), 0) && self.confirm("Really Exit?") {
           self.running = false;
         }
       }
@@ -151,8 +145,31 @@ impl Game {
   }
 
   fn print_current_location(&self) {
-    print!("\x1B[2J\x1B[1;1H");
+    clearscreen::clear().ok();
     println!("{}", self.location.get_image(&self.state));
+  }
+
+  pub fn confirm(&mut self, prompt: &'static str) -> bool {
+    let prompt: String = format!("{} [Y|N] ", prompt);
+    loop {
+      let data = self.rl.readline(&*prompt);
+      let line: String = match data {
+        Err(_) => continue,
+        Ok(l) => l,
+      };
+
+      let trimmed = line.trim();
+      if trimmed.len() == 0 {
+        continue;
+      }
+
+      if (trimmed == "y") || (trimmed == "Y") {
+        return true;
+      }
+      if (trimmed == "n") || (trimmed == "N") {
+        return false;
+      }
+    }
   }
 }
 
@@ -167,38 +184,6 @@ fn show_help() {
   println!("  clear = Redraw the current location");
   println!("  help  = Help screen");
   println!("  exit  = End the game\n");
-}
-
-pub fn init_terminal() {
-  unsafe {
-    rl_inhibit_completion = 1;
-  }
-}
-
-pub fn confirm(prompt: &'static str) -> bool {
-  let prompt: String = format!("{} [Y|N] ", prompt);
-  loop {
-    let data = readline(&*prompt);
-    let line: String = match data {
-      Err(_) => continue,
-      Ok(l) => match l {
-        Some(s) => s,
-        None => "".into(),
-      },
-    };
-
-    let trimmed = line.trim();
-    if trimmed.len() == 0 {
-      continue;
-    }
-
-    if (trimmed == "y") || (trimmed == "Y") {
-      return true;
-    }
-    if (trimmed == "n") || (trimmed == "N") {
-      return false;
-    }
-  }
 }
 
 fn test_arguments(command: &'static str, num: usize, num_expected: usize) -> bool {
